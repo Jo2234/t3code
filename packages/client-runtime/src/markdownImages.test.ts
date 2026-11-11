@@ -5,6 +5,7 @@ import { classifyMarkdownImageSource } from "./markdownImages.js";
 describe("classifyMarkdownImageSource", () => {
   it.each([
     ["images/result.png", "/workspace/project", "/workspace/project/images/result.png"],
+    ["./images/foo%5Cbar.png", "/workspace/project", "/workspace/project/./images/foo\\bar.png"],
     [
       "images\\result.png",
       "C:\\Users\\dara\\project",
