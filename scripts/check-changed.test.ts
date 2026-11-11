@@ -27,6 +27,8 @@ import {
 import { decide, readWorkspace } from "../.github/scripts/ci-changes.cjs";
 
 const GiB = 1024 ** 3;
+// oxlint-disable-next-line t3code/no-global-process-runtime -- Filesystem fixtures need the real host's filename restrictions.
+const supportsQuotedPaths = process.platform !== "win32";
 
 describe("check:changed", () => {
   it("bounds the default concurrency by the scarcer of cores and available memory", () => {
@@ -354,7 +356,9 @@ function launcherFixture() {
     }),
   );
   write("packages/example/package.json", JSON.stringify({ name: "example" }));
-  const source = "packages/example/space & (draft) %PATH% ! 研究.ts";
+  const source = supportsQuotedPaths
+    ? 'packages/example/space & (draft) "quoted"\t研究.ts'
+    : "packages/example/space & (draft) %PATH% ! 研究.ts";
   write(source, "export const value = 1;\n");
   write(
     "node_modules/vite-plus/package.json",
@@ -448,7 +452,9 @@ it("checks changed source paths through the Windows launcher", () => {
 
 it("lints an Astro component and runs knip when only it changed", () => {
   using project = launcherFixture();
-  const page = "packages/example/Page.astro";
+  const page = supportsQuotedPaths
+    ? 'packages/example/Page "draft"\n.astro'
+    : "packages/example/Page.astro";
   project.write(page, "---\nconst title = 1;\n---\n<h1>{title}</h1>\n");
   const result = project.run();
   expect(result.status, result.stdout + result.stderr).toBe(0);

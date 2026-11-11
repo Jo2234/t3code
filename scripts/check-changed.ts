@@ -244,9 +244,11 @@ const checkChanged = Effect.fn("checkChanged")(function* (input: {
   const lines = (...args: Array<string>) => gitLines(root, args);
 
   const { ref, base } = yield* comparisonBase(root, input.ref);
+  const paths = (...args: Array<string>) =>
+    git(root, args).pipe(Effect.map((stdout) => stdout.toString().split("\0").filter(Boolean)));
   // --no-renames lists a rename as its old and new path, as CI does.
-  const changedFiles = lines("diff", "--name-only", "--no-renames", base, "--");
-  const untrackedFiles = lines("ls-files", "--others", "--exclude-standard");
+  const changedFiles = paths("diff", "-z", "--name-only", "--no-renames", base, "--");
+  const untrackedFiles = paths("ls-files", "-z", "--others", "--exclude-standard");
   const files = [...new Set([...(yield* changedFiles), ...(yield* untrackedFiles)])].sort();
 
   if (files.length === 0) {
