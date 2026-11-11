@@ -207,7 +207,14 @@ const CommandRow = memo(function CommandRow(props: {
           type="monochrome"
         />
       ) : null}
-      <Text className="shrink-0 text-base font-t3-medium text-foreground" numberOfLines={1}>
+      <Text
+        className={
+          props.item.description
+            ? "min-w-0 max-w-[45%] shrink-0 text-base font-t3-medium text-foreground"
+            : "shrink-0 text-base font-t3-medium text-foreground"
+        }
+        numberOfLines={1}
+      >
         {props.isSlashSkill && props.item.type === "skill" ? (
           <>
             <Text className="text-foreground-muted">skill:</Text>
